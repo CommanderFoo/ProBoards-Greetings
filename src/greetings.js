@@ -2,15 +2,19 @@ class Greetings {
 
 	static init(){
 		this.PLUGIN_ID = "pd_greetings";
+
 		this.greetings = [];
 		this.greetings_lookup = new Map();
+
 		this.hour = (new Date().getHours());
+
+		this.show_for_guests = true;
 
 		this.$welcome = null;
 
 		this.setup();
 
-		if(this.greetings.length > 0){
+		if((pb.data("user").is_logged_in || (!pb.data("user").is_logged_in && this.show_for_guests)) && this.greetings.length > 0){
 			this.build_table();
 
 			$(this.ready.bind(this));
@@ -23,7 +27,14 @@ class Greetings {
 		// Check to see if the welcome element exists
 
 		if(this.$welcome.length == 0){
-			return;
+
+			// Could be a guest, if so, there is no span.
+
+			if($("#welcome").length > 0){
+				this.$welcome = $("#welcome");
+			} else {
+				return;
+			}
 		}
 
 		// Check the hour is in the lookup and then pick a random greeting for that hour.
@@ -51,10 +62,12 @@ class Greetings {
 		// Need to be a little careful, because the name may contain the default greeting and
 		// it may not be english.
 
-		let html = this.$welcome.html();
+		if(this.$welcome != null){
+			let html = this.$welcome.html();
 
-		if(this.$welcome != null && html.match(new RegExp("^(.+? )" + pb.data("user").name + "\."))){
-			this.$welcome.html(html.replace(RegExp.$1, ""));
+			if(html.match(new RegExp("^(.+? )" + pb.data("user").name + "\.", "m"))){
+				this.$welcome.html(html.replace(RegExp.$1, ""));
+			}
 		}
 	}
 
@@ -78,6 +91,7 @@ class Greetings {
 
 		if(plugin && plugin.settings){
 			this.greetings = plugin.settings.greetings;
+			this.show_for_guests = (parseInt(plugin.settings.show_for_guests, 10) == 1)? true : false;
 		}
 	}
 

@@ -1,4 +1,4 @@
-Greetings 1.0.0
+Greetings 1.0.1
 ===============
 
 Concept by Scott (ProBoards Staff).
